@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Prices by state</h1>
+  <p class="sub">Average reported price per state — cheapest first.</p>
+
+  <div class="tab-switch">
+    {% for code, name in fuel_types.items() %}
+    <a href="{{ url_for('stats', fuel_type=code, days=days) }}" class="{{ 'active' if fuel_type == code }}">{{ name }}</a>
+    {% endfor %}
+    <span class="divider"></span>
+    <a href="{{ url_for('stats', fuel_type=fuel_type, days=7) }}" class="{{ 'active' if days == 7 }}">7 days</a>
+    <a href="{{ url_for('stats', fuel_type=fuel_type, days=30) }}" class="{{ 'active' if days == 30 }}">30 days</a>
+  </div>
+
+  <div class="stats-summary">
+    <div class="stat-card">
+      <div class="label">National average ({{ days }}d)</div>
+      <div class="value">{{ "₦%.2f"|format(national) if national else "—" }}</div>
+    </div>
+    <div class="stat-card"><div class="label">Total reports</div><div class="value">{{ total_reports }}</div></div>
+  </div>
+
+  {% if averages %}
+    <table class="worst-table">
+      <thead><tr><th>#</th><th>State</th><th>Avg price</th><th>Reports</th></tr></thead>
+      <tbody>
+        {% for row in averages %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ row.state }}</td>
+          <td><strong>₦{{ "%.2f"|format(row.avg_price) }}</strong></td>
+          <td>{{ row.report_count }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty-note">No reports in this window yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

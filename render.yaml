@@ -1,0 +1,20 @@
+databases:
+  - name: pumpwatch-db
+    plan: free
+    databaseName: pumpwatch
+    user: pumpwatch
+
+services:
+  - type: web
+    name: pumpwatch
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: pumpwatch-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true

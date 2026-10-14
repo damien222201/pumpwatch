@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Find cheapest prices</h1>
+  <p class="sub">Recent reports for a state, cheapest first.</p>
+
+  <form method="GET" action="{{ url_for('prices') }}" class="form inline-form">
+    <select name="state" required>
+      <option value="" disabled {{ 'selected' if not state }}>Select state</option>
+      {% for s in states %}<option value="{{ s }}" {{ 'selected' if s == state }}>{{ s }}</option>{% endfor %}
+    </select>
+    <select name="fuel_type">
+      {% for code, name in fuel_types.items() %}<option value="{{ code }}" {{ 'selected' if code == fuel_type }}>{{ name }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn-primary small">Search</button>
+  </form>
+
+  {% if state %}
+    {% if results %}
+      <ul class="price-list">
+        {% for item in results %}
+        <li class="price-item {{ 'stale' if item.is_stale }}">
+          <span class="price-tag big">₦{{ "%.2f"|format(item.report.price_per_litre) }}</span>
+          <div>
+            <div class="feed-main"><strong>{{ item.report.station_area }}</strong></div>
+            <div class="feed-meta">
+              {{ item.report.created_at.strftime('%d %b, %H:%M') }} UTC
+              {% if item.is_stale %} · <span class="stale-tag">over 24h old</span>{% endif %}
+            </div>
+            {% if item.report.note %}<div class="feed-note">"{{ item.report.note }}"</div>{% endif %}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty-note">No recent reports for {{ state }} yet. Be the first to <a href="{{ url_for('index') }}">report it</a>.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}
